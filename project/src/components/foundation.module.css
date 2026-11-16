@@ -4,6 +4,7 @@
   --foundation-blue: #0061ff;
   --foundation-border: #d5e0f2;
   --foundation-sidebar: 224px;
+  --foundation-banner-gradient: linear-gradient(105deg, #19449e, #0875fa 65%, #30c8ed);
   display: flex;
   min-height: 100svh;
   background: radial-gradient(ellipse at 75% 75%, #edf3ff, #f7f9ff 75%);
@@ -183,16 +184,30 @@
   color: var(--foundation-ink);
 }
 .dashboard {
+  position: relative;
+  isolation: isolate;
   padding: 0;
 }
 .dashboard > .pageTitle {
   margin: 0;
+  color: white;
 }
 .cycleGrid {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
   margin-top: 24px;
+}
+.dashboard::before {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  z-index: -1;
+  border-radius: 20px;
+  background: var(--foundation-banner-gradient);
+  pointer-events: none;
 }
 .cycleCard {
   display: flex;
@@ -270,7 +285,7 @@
   position: relative;
   overflow: hidden;
   isolation: isolate;
-  background: linear-gradient(105deg, #19449e, #0875fa 65%, #30c8ed);
+  background: var(--foundation-banner-gradient);
   border-radius: 14px;
 }
 .banner:after {
@@ -773,6 +788,10 @@
     grid-template-columns: 1fr;
     gap: 16px;
     margin-top: 20px;
+  }
+  .dashboard::before {
+    inset: -10px;
+    border-radius: 16px;
   }
   .cycleCard {
     min-height: 164px;

@@ -66,7 +66,6 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const path = usePathname();
   const role =
     user.role === "ADMIN"
       ? "Admin"
@@ -105,9 +104,6 @@ export function AppShell({
               </Dialog.Content>
             </Dialog.Portal>
           </Dialog.Root>
-          {path === "/dashboard" && (
-            <span className={styles.workspaceName}>Ultrajaya</span>
-          )}
           <details
             className={styles.userMenu}
             onKeyDown={(e) => {
