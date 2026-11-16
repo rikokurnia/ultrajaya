@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { User } from "@/shared/contracts/auth";
 import { can } from "@/lib/auth/permissions";
+import { CYCLES } from "@/shared/cycles";
 import { Brand } from "./brand";
 import { signOut } from "@/features/auth/actions";
 import styles from "./foundation.module.css";
@@ -66,6 +67,8 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const path = usePathname();
+  const activeCycle = CYCLES.find((cycle) => path.startsWith(cycle.path));
   const role =
     user.role === "ADMIN"
       ? "Admin"
@@ -104,6 +107,13 @@ export function AppShell({
               </Dialog.Content>
             </Dialog.Portal>
           </Dialog.Root>
+          {activeCycle && (
+            <nav className={styles.breadcrumb} aria-label="Breadcrumb">
+              <Link href="/dashboard">Dashboard</Link>
+              <span aria-hidden>/</span>
+              <span aria-current="page">{activeCycle.title}</span>
+            </nav>
+          )}
           <details
             className={styles.userMenu}
             onKeyDown={(e) => {

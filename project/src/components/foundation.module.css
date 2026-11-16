@@ -89,6 +89,31 @@
   font-weight: 700;
   letter-spacing: -0.6px;
 }
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  min-width: 0;
+  white-space: nowrap;
+}
+.breadcrumb a {
+  color: #4b5e82;
+  font-weight: 500;
+}
+.breadcrumb a:hover {
+  color: var(--foundation-blue);
+  text-decoration: none;
+}
+.breadcrumb span[aria-hidden] {
+  color: #8a9bb8;
+}
+.breadcrumb span[aria-current="page"] {
+  color: var(--foundation-ink);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .userMenu {
   margin-left: auto;
   position: relative;
@@ -773,7 +798,11 @@
   }
   .topbar {
     padding: 0 16px;
-    gap: 12px;
+    gap: 10px;
+  }
+  .breadcrumb {
+    font-size: 13px;
+    gap: 6px;
   }
   .workspaceName {
     font-size: 18px;
@@ -888,5 +917,14 @@
   }
   .settingsBody :global(.admin-form) {
     display: flex;
+  }
+}
+@media (max-width: 440px) {
+  .userMenu summary > span:not(.avatar) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 }
