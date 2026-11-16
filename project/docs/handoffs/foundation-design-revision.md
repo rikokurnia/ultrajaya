@@ -47,3 +47,7 @@ The Settings access-cycle labels summarize existing read permissions for present
 - Screenshots: `docs/screenshots/foundation-{dashboard,reports,settings}-desktop.png`, matching `-mobile.png` files, `foundation-navigation-mobile.png`, and `foundation-cycle-blank.png`.
 
 This revision supersedes the historical five-primary-item shell and operational KPI dashboard sections in the original Agent 1 docs. Authentication, persisted user administration, core contracts and existing module ownership remain in effect.
+
+## Responsive usability correction
+
+The user subsequently clarified that the references must adapt to conventional web sizes. `foundation.module.css` now uses a coherent 14–15 px text scale, 22–28 px headings, 224 px sidebar, 64 px topbar, compact cards and responsive gutters. This supersedes the earlier reference-pixel sizing. All four dashboard cards fit at 1280×640; 768×1024 and 375×812 were also visually checked. No horizontal document overflow was observed on Dashboard, Laporan or Pengaturan at 375 px. Branding source/assets, content, authentication and blank cycle routes were untouched. Screenshots: `responsive-dashboard-laptop.png`, `responsive-dashboard-tablet.png`, `responsive-dashboard-mobile.png`, `responsive-reports-laptop.png`, `responsive-settings-laptop.png` under `docs/screenshots/`. This is a CSS-only change; no business logic or dependency changes were needed.
