@@ -1,0 +1,322 @@
+flowchart TD
+    %% Definisi Warna Aktor dan Sistem
+    classDef prod fill:#dae8fc,stroke:#6c8ebf,stroke-width:2px,color:#000
+    classDef gudang fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#000
+    classDef purch fill:#ffe6cc,stroke:#d79b00,stroke-width:2px,color:#000
+    classDef mgr fill:#fff2cc,stroke:#d6b656,stroke-width:2px,color:#000
+    classDef qc fill:#e1d5e7,stroke:#9673a6,stroke-width:2px,color:#000
+    classDef ap fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#000
+    classDef fin fill:#b0e3e6,stroke:#0e8088,stroke-width:2px,color:#000
+    classDef acc fill:#f5f5f5,stroke:#666666,stroke-width:2px,color:#000
+    classDef aud fill:#eeeeee,stroke:#36393d,stroke-width:2px,stroke-dasharray: 5 5,color:#000
+    classDef sys fill:#ffffff,stroke:#333333,stroke-width:1.5px,color:#000
+    classDef ext fill:#fafafa,stroke:#000000,stroke-width:2px,stroke-dasharray: 3 3,color:#000
+    classDef alt fill:#ffebee,stroke:#c62828,stroke-width:1.5px,color:#000
+
+    %% ================= UC-01 =================
+    Start(("Mulai:<br/>Aktor Sudah Login"))
+    UC01_A1["<b>UC-01 | Aktor (Produksi, Gudang):</b><br/>1. Klik menu stok bahan baku"]
+    UC01_S2["<b>Respons Sistem:</b><br/>2. Menampilkan saldo stok dan batas minimum"]
+    UC01_A2["<b>Aktor (Produksi, Gudang):</b><br/>2. Meninjau bahan yang kritis"]
+    C01{"Apakah Stok Mencapai<br/>Batas Minimum / Kebutuhan<br/>Produksi Meningkat?"}
+    UC01_Alt["Gudang menginformasikan ke Produksi<br/>dan pengadaan tidak diperlukan"]
+    UC01_S3["<b>Respons Sistem:</b><br/>3. Menandai bahan yang mencapai batas minimum<br/><i>(Postcondition: Indikasi kebutuhan bahan tercatat sebagai dasar FPBB)</i>"]
+
+    Start --> UC01_A1
+    UC01_A1 --> UC01_S2
+    UC01_S2 --> UC01_A2
+    UC01_A2 --> C01
+    C01 -- "Alternative: Stok Masih Mencukupi" --> UC01_Alt
+    C01 -- "Typical: Mencapai Batas Minimum" --> UC01_S3
+
+    %% ================= UC-02 =================
+    C02_Mode{"Aksi Aktor Produksi<br/>pada Menu FPBB"}
+    UC02_Alt_Stat["<b>Respons Sistem:</b><br/>Menampilkan status FPBB"]
+    UC02_A1["<b>UC-02 | Aktor (Produksi):</b><br/>1. Klik menu FPBB, lalu pilih tambah"]
+    UC02_S2["<b>Respons Sistem:</b><br/>2. Menampilkan form FPBB dengan nomor unik<br/>(contoh: FPBB-2026-000001)"]
+    UC02_A2["<b>Aktor (Produksi):</b><br/>2. Input tanggal dibutuhkan, nomor perintah produksi,<br/>detail bahan, alasan, dan prioritas, lalu simpan"]
+    C02_Alt{"Validasi Data &<br/>Perubahan Bahan"}
+    UC02_Err["<b>Respons Sistem:</b><br/>Menampilkan pesan gagal simpan"]
+    UC02_Ubah["<b>Respons Sistem:</b><br/>Mewajibkan catatan perubahan dan persetujuan"]
+    UC02_S3["<b>Respons Sistem:</b><br/>3. Memvalidasi dan menyimpan FPBB<br/><i>(Postcondition: FPBB bernomor unik tersimpan & menunggu verifikasi Gudang)</i>"]
+
+    UC01_S3 --> C02_Mode
+    C02_Mode -- "Alternative: Memilih Lihat Status" --> UC02_Alt_Stat
+    C02_Mode -- "Typical: Membuat FPBB" --> UC02_A1
+    UC02_A1 --> UC02_S2
+    UC02_S2 --> UC02_A2
+    UC02_A2 --> C02_Alt
+    C02_Alt -- "Alternative: Data Tidak Lengkap" --> UC02_Err
+    UC02_Err --> UC02_A2
+    C02_Alt -- "Alternative: Perubahan Jumlah/Jenis Bahan" --> UC02_Ubah
+    UC02_Ubah --> UC02_S3
+    C02_Alt -- "Typical: Data Lengkap & Sesuai" --> UC02_S3
+
+    %% ================= UC-03 =================
+    UC03_A1["<b>UC-03 | Aktor (Gudang):</b><br/>1. Memilih FPBB"]
+    UC03_S2["<b>Respons Sistem:</b><br/>2. Menampilkan detail FPBB dan saldo persediaan"]
+    UC03_A2["<b>Aktor (Gudang):</b><br/>2. Memeriksa stok, menentukan jumlah<br/>yang perlu dibeli, lalu klik simpan"]
+    C03{"Hasil Verifikasi<br/>Gudang"}
+    UC03_Alt1["Permintaan tidak diteruskan dan<br/>Produksi diinformasikan"]
+    UC03_Alt2["Tidak dapat menjadi dasar PO"]
+    UC03_S3["<b>Respons Sistem:</b><br/>3. Menyimpan hasil verifikasi dan<br/>meneruskan FPBB ke Purchasing<br/><i>(Postcondition: FPBB terverifikasi & diteruskan ke Purchasing)</i>"]
+
+    UC02_S3 --> UC03_A1
+    UC03_A1 --> UC03_S2
+    UC03_S2 --> UC03_A2
+    UC03_A2 --> C03
+    C03 -- "Alternative: Stok Mencukupi" --> UC03_Alt1
+    C03 -- "Alternative: FPBB Belum Disetujui" --> UC03_Alt2
+    C03 -- "Typical: Perlu Dibeli" --> UC03_S3
+
+    %% ================= UC-04 =================
+    C04_Pre{"Precondition Check:<br/>FPBB Telah Diverifikasi?"}
+    UC04_Alt1["RFQ tidak dapat dibuat"]
+    UC04_A1["<b>UC-04 | Aktor (Purchasing):</b><br/>1. Memilih FPBB terverifikasi dan pemasok"]
+    UC04_S2["<b>Respons Sistem:</b><br/>2. Menampilkan form RFQ dengan nomor unik<br/>(contoh: RFQ-2026-000001)"]
+    UC04_A2["<b>Aktor (Purchasing):</b><br/>2. Menyimpan dan mengirim RFQ ke pemasok"]
+    UC04_S3["<b>Respons Sistem:</b><br/>3. Menyimpan RFQ"]
+    UC04_A3["<b>Aktor (Pemasok & Purchasing):</b><br/>3. Pemasok mengirim penawaran (tanpa login);<br/>Purchasing menginput penawaran"]
+    C04_Val{"Validasi Kelengkapan<br/>Data RFQ/Penawaran"}
+    UC04_Alt2["<b>Respons Sistem:</b><br/>Menampilkan pesan gagal simpan"]
+    UC04_S4["<b>Respons Sistem:</b><br/>4. Menyimpan penawaran, termasuk<br/>tanggal dan masa berlaku<br/><i>(Postcondition: RFQ dan penawaran pemasok tersimpan)</i>"]
+
+    UC03_S3 --> C04_Pre
+    C04_Pre -- "Alternative: FPBB Belum Diverifikasi" --> UC04_Alt1
+    C04_Pre -- "Typical: FPBB Terverifikasi" --> UC04_A1
+    UC04_A1 --> UC04_S2
+    UC04_S2 --> UC04_A2
+    UC04_A2 --> UC04_S3
+    UC04_S3 --> UC04_A3
+    UC04_A3 --> C04_Val
+    C04_Val -- "Alternative: Data Tidak Lengkap" --> UC04_Alt2
+    UC04_Alt2 --> UC04_A3
+    C04_Val -- "Typical: Data Lengkap" --> UC04_S4
+
+    %% ================= UC-05 =================
+    UC05_A1["<b>UC-05 | Aktor (Purchasing):</b><br/>1. Membuka daftar penawaran"]
+    UC05_S2["<b>Respons Sistem:</b><br/>2. Menampilkan penawaran, skor evaluasi, status kualifikasi,<br/>dokumen legalitas, riwayat kualitas, dan ketepatan pengiriman"]
+    UC05_Alt["<b>Respons Sistem:</b><br/>Ditampilkan dengan peringatan"]
+    UC05_A2["<b>Aktor (Purchasing):</b><br/>2. Memberi penilaian (kualitas, kapasitas, ketepatan waktu,<br/>harga, legalitas, risiko pasokan - tidak hanya harga terendah)<br/>dan memilih pemasok, lalu klik simpan"]
+    UC05_S3["<b>Respons Sistem:</b><br/>3. Menyimpan pemasok terpilih dan dasar pemilihan<br/><i>(Postcondition: Pemasok terpilih & dasar pemilihan tersimpan)</i>"]
+
+    UC04_S4 --> UC05_A1
+    UC05_A1 --> UC05_S2
+    UC05_S2 -. "Alternative: Legalitas Tidak Berlaku / Belum Terkualifikasi" .-> UC05_Alt
+    UC05_S2 --> UC05_A2
+    UC05_A2 --> UC05_S3
+
+    %% ================= UC-06 & UC-07 (Include) =================
+    UC06_A1["<b>UC-06 | Aktor (Purchasing):</b><br/>1. Memilih FPBB dan hasil RFQ"]
+    UC06_S2["<b>Respons Sistem:</b><br/>2. Menampilkan form PO dengan nomor unik<br/>(contoh: PO-2026-000001)"]
+    UC06_A2["<b>Aktor (Purchasing):</b><br/>2. Melengkapi data PO (pemasok, barang, harga,<br/>pajak, pengiriman, termin), lalu klik simpan"]
+    C06_Alt{"Pemeriksaan Kelengkapan<br/>& Aturan PO"}
+    UC06_Alt1["PO ditahan sebelum terbit (tetap Draft)"]
+    UC06_Alt2["Tidak diizinkan oleh sistem"]
+    UC06_Alt3["Wajib alasan dan jalur otorisasi khusus"]
+    UC06_Alt4["Wajib persetujuan ulang"]
+    UC06_S3["<b>Respons Sistem:</b><br/>3. Memeriksa kelengkapan dan menyimpan<br/>PO berstatus <b>Pending Approval</b>"]
+    UC06_A3["<b>Aktor (Purchasing):</b><br/>3. Mengajukan PO untuk persetujuan"]
+    UC06_S4["<b>Respons Sistem:</b><br/>4. Menjalankan <b>UC-07 Approval PO</b> (&lt;&lt;include&gt;&gt;) dan<br/>menahan PO sebagai pesanan resmi sampai disetujui"]
+
+    UC05_S3 --> UC06_A1
+    UC06_A1 --> UC06_S2
+    UC06_S2 --> UC06_A2
+    UC06_A2 --> C06_Alt
+    C06_Alt -- "Alternative: PO Tidak Lengkap" --> UC06_Alt1
+    UC06_Alt1 --> UC06_A2
+    C06_Alt -- "Alternative: PO Dipecah Hindari Batas Persetujuan" --> UC06_Alt2
+    UC06_Alt2 --> UC06_A2
+    C06_Alt -- "Alternative: Pembelian Darurat" --> UC06_Alt3
+    UC06_Alt3 --> UC06_S3
+    C06_Alt -- "Alternative: Perubahan Material (Jumlah/Harga/Pemasok/Syarat)" --> UC06_Alt4
+    UC06_Alt4 --> UC06_S3
+    C06_Alt -- "Typical: Lengkap" --> UC06_S3
+    UC06_S3 --> UC06_A3
+    UC06_A3 --> UC06_S4
+
+    %% Sub-flow UC-07
+    UC07_A1["<b>UC-07 | Aktor (Manajer/Pejabat Penyetuju):</b><br/>1. Klik menu approval PO"]
+    UC07_S2["<b>Respons Sistem:</b><br/>2. Menampilkan PO yang menunggu persetujuan"]
+    UC07_A2["<b>Aktor (Manajer/Pejabat Penyetuju):</b><br/>2. Memilih PO"]
+    UC07_S3["<b>Respons Sistem:</b><br/>3. Menampilkan detail PO dan tingkat<br/>persetujuan sesuai nilai PO"]
+    C07{"Keputusan Pejabat<br/>Penyetuju"}
+    UC07_Alt1["<b>Respons Sistem:</b><br/>Sistem menolak"]
+    UC07_Alt2["Alasan penolakan wajib diisi dan<br/>PO kembali ke Purchasing untuk revisi"]
+    UC07_A3["<b>Aktor (Manajer/Pejabat Penyetuju):</b><br/>3. Klik setujui"]
+    UC07_S4["<b>Respons Sistem:</b><br/>4. Menyimpan keputusan ke <b>Approval_Log</b> (identitas, waktu, alasan)<br/>dan mengubah status PO menjadi <b>Approved</b>"]
+
+    UC06_S4 -- "<<include>>" --> UC07_A1
+    UC07_A1 --> UC07_S2
+    UC07_S2 --> UC07_A2
+    UC07_A2 --> UC07_S3
+    UC07_S3 --> C07
+    C07 -- "Alternative: Pembuat PO Mencoba Menyetujui PO Sendiri" --> UC07_Alt1
+    C07 -- "Alternative: PO Ditolak" --> UC07_Alt2
+    UC07_Alt2 --> UC06_A2
+    C07 -- "Typical: Disetujui" --> UC07_A3
+    UC07_A3 --> UC07_S4
+
+    %% Kembali ke UC-06 langkah 4 & 5
+    UC06_A4["<b>UC-06 | Aktor (Purchasing):</b><br/>4. Setelah PO berstatus Approved, mengirim PO ke pemasok"]
+    UC06_S5["<b>Respons Sistem:</b><br/>5. Mencatat pengiriman PO kepada pemasok<br/><i>(Postcondition: PO berstatus Approved & terkirim ke pemasok)</i>"]
+    Ext_Sup_Send("<b>Aktor Eksternal (Pemasok):</b><br/>Menerima PO, mengirim bahan baku & faktur (tanpa login)")
+
+    UC07_S4 --> UC06_A4
+    UC06_A4 --> UC06_S5
+    UC06_S5 --> Ext_Sup_Send
+
+    %% ================= UC-08 =================
+    UC08_A1["<b>UC-08 | Aktor (Gudang):</b><br/>1. Memilih PO yang relevan (berstatus Approved)"]
+    UC08_S2["<b>Respons Sistem:</b><br/>2. Menampilkan detail PO"]
+    UC08_A2["<b>Aktor (Gudang):</b><br/>2. Memeriksa fisik, menginput jumlah<br/>diterima dan ditolak, lalu klik simpan"]
+    C08{"Kondisi Penerimaan<br/>Fisik Barang"}
+    UC08_Alt1["Perlu otorisasi"]
+    UC08_Alt2["Selisih atau penolakan dicatat dan<br/>ditindaklanjuti ke pemasok"]
+    UC08_S3["<b>Respons Sistem:</b><br/>3. Menyimpan GR (contoh: GR-2026-000001),<br/>mencatat selisih, dan memperbarui stok"]
+
+    Ext_Sup_Send --> UC08_A1
+    UC08_A1 --> UC08_S2
+    UC08_S2 --> UC08_A2
+    UC08_A2 --> C08
+    C08 -- "Alternative: Jumlah Diterima Melebihi Pesanan" --> UC08_Alt1
+    UC08_Alt1 --> UC08_S3
+    C08 -- "Alternative: Barang Tidak Sesuai" --> UC08_Alt2
+    UC08_Alt2 --> UC08_S3
+    C08 -- "Typical / Pengiriman Bertahap (1 PO bisa beberapa GR)" --> UC08_S3
+
+    %% ================= UC-09 =================
+    UC09_A1["<b>UC-09 | Aktor (QC):</b><br/>1. Memilih GR"]
+    UC09_S2["<b>Respons Sistem:</b><br/>2. Menampilkan detail GR dan spesifikasi bahan<br/><i>(Batasan: QC tidak dapat mengubah harga PO)</i>"]
+    UC09_A2["<b>Aktor (QC):</b><br/>2. Input hasil pemeriksaan dan status<br/>penerimaan, lalu klik simpan"]
+    C09{"Apakah Barang Sesuai<br/>Spesifikasi?"}
+    UC09_Alt["Dicatat sebagai ditolak dan selisih<br/>ditindaklanjuti ke pemasok"]
+    UC09_S3["<b>Respons Sistem:</b><br/>3. Menyimpan status QC dan jumlah diterima/ditolak<br/><i>(Postcondition: Status QC & jumlah diterima/ditolak tersimpan pada GR)</i>"]
+
+    UC08_S3 --> UC09_A1
+    UC09_A1 --> UC09_S2
+    UC09_S2 --> UC09_A2
+    UC09_A2 --> C09
+    C09 -- "Alternative: Barang Tidak Sesuai Spesifikasi" --> UC09_Alt
+    UC09_Alt --> UC09_S3
+    C09 -- "Typical: Sesuai Spesifikasi" --> UC09_S3
+
+    %% ================= UC-10 & UC-11 (Include) =================
+    UC10_A1["<b>UC-10 | Aktor (AP):</b><br/>1. Input faktur (nomor asli, tanggal, nilai, pajak, jatuh tempo)"]
+    UC10_S2["<b>Respons Sistem:</b><br/>2. Memeriksa kemungkinan duplikasi faktur"]
+    C10_Dup{"Terindikasi Duplikat?<br/>(Pemasok, Nomor, Tanggal,<br/>Nilai Sama)"}
+    UC10_Alt_Dup["Faktur ditahan oleh sistem"]
+    UC10_A2["<b>Aktor (AP):</b><br/>2. Klik cocokkan dokumen"]
+    UC10_S3["<b>Respons Sistem:</b><br/>3. Membandingkan jenis barang, kuantitas,<br/>harga, pajak, dan termin dengan PO dan GR"]
+    UC10_A3["<b>Aktor (AP):</b><br/>3. Meninjau hasil"]
+    C10_Match{"Apakah Dokumen Cocok?<br/>(Atau Dalam Toleransi yang<br/>Disetujui Perusahaan)"}
+    UC10_Alt_Hold["Tagihan berstatus <b>On Hold</b> sampai ada<br/>klarifikasi dan otorisasi penyelesaian"]
+    UC10_S4["<b>Respons Sistem:</b><br/>4. Menampilkan hasil <b>Cocok</b> dan menyimpannya<br/><i>(Postcondition: Hasil pencocokan tersimpan)</i>"]
+
+    Ext_Sup_Send --> UC10_A1
+    UC09_S3 --> UC10_A1
+    UC10_A1 --> UC10_S2
+    UC10_S2 --> C10_Dup
+    C10_Dup -- "Alternative: Ya, Duplikat" --> UC10_Alt_Dup
+    C10_Dup -- "Tidak Duplikat" --> UC10_A2
+    UC10_A2 --> UC10_S3
+    UC10_S3 --> UC10_A3
+    UC10_A3 --> C10_Match
+    C10_Match -- "Alternative: Ditemukan Selisih" --> UC10_Alt_Hold
+    UC10_Alt_Hold -. "Setelah Selisih Diselesaikan" .-> UC10_S4
+    C10_Match -- "Typical: Cocok" --> UC10_S4
+
+    %% Masuk ke UC-11
+    UC11_A1["<b>UC-11 | Aktor (AP, Accounting):</b><br/>1. Memilih faktur yang cocok"]
+    UC11_Alt["Tidak dicatat sebagai utang sampai selisih diselesaikan"]
+    UC11_S2["<b>Respons Sistem:</b><br/>2. Menjalankan <b>UC-10</b> (&lt;&lt;include&gt;&gt;) dan menampilkan hasil"]
+    UC11_A2["<b>Aktor (AP, Accounting):</b><br/>2. Klik catat utang"]
+    UC11_S3["<b>Respons Sistem:</b><br/>3. Menyimpan transaksi utang (nilai tagihan, jatuh tempo, saldo)<br/>dan membuat jurnal<br/><i>(Postcondition: Saldo utang & jatuh tempo tersimpan;<br/>jurnal pengakuan persediaan & utang usaha terbentuk)</i>"]
+
+    UC10_S4 --> UC11_A1
+    UC10_Alt_Hold -. "Alternative UC-11: Jika Tagihan On Hold" .-> UC11_Alt
+    UC11_A1 --> UC11_S2
+    UC11_S2 -. "<<include>>" .-> UC10_A1
+    UC11_S2 --> UC11_A2
+    UC11_A2 --> UC11_S3
+
+    %% ================= UC-12 =================
+    UC12_A1["<b>UC-12 | Aktor (Finance/Treasury):</b><br/>1. Klik menu pembayaran"]
+    UC12_S2["<b>Respons Sistem:</b><br/>2. Menampilkan utang terverifikasi dan jatuh tempo"]
+    UC12_A2["<b>Aktor (Finance/Treasury):</b><br/>2. Memilih utang, memverifikasi jatuh tempo, dan mengotorisasi"]
+    C12_Pre{"Status Utang?"}
+    UC12_Alt1["Tidak dapat dibayar"]
+    UC12_S3["<b>Respons Sistem:</b><br/>3. Menampilkan form pembayaran"]
+    UC12_A3["<b>Aktor (Finance/Treasury):</b><br/>3. Input tanggal, jumlah, rekening bank,<br/>dan referensi transaksi, lalu klik simpan"]
+    C12_Pay{"Validasi Jumlah<br/>Pembayaran"}
+    UC12_Alt2["Ditolak oleh sistem"]
+    UC12_Alt3["Saldo sisa dicatat dan dialokasikan<br/>melalui <b>AP_Payment_Allocation</b>"]
+    UC12_S4["<b>Respons Sistem:</b><br/>4. Menyimpan pembayaran (contoh: PV-2026-000001)<br/>dan memperbarui saldo utang<br/><i>(Postcondition: Bukti pembayaran tersimpan, saldo utang berkurang,<br/>& Pemasok menerima pembayaran)</i>"]
+
+    UC11_S3 --> UC12_A1
+    UC12_A1 --> UC12_S2
+    UC12_S2 --> UC12_A2
+    UC12_A2 --> C12_Pre
+    C12_Pre -- "Alternative: Utang Belum Terverifikasi / On Hold" --> UC12_Alt1
+    C12_Pre -- "Typical: Terverifikasi & Disetujui" --> UC12_S3
+    UC12_S3 --> UC12_A3
+    UC12_A3 --> C12_Pay
+    C12_Pay -- "Alternative: Jumlah Melebihi Saldo Terutang" --> UC12_Alt2
+    UC12_Alt2 --> UC12_A3
+    C12_Pay -- "Alternative: Pembayaran Sebagian" --> UC12_Alt3
+    UC12_Alt3 --> UC12_S4
+    C12_Pay -- "Typical: Sesuai Saldo" --> UC12_S4
+
+    %% ================= UC-13 =================
+    UC13_A1["<b>UC-13 | Aktor (Accounting):</b><br/>1. Klik menu jurnal"]
+    UC13_S2["<b>Respons Sistem:</b><br/>2. Menampilkan jurnal transaksi<br/>(persediaan, utang usaha, kas/bank, pajak)"]
+    UC13_A2["<b>Aktor (Accounting):</b><br/>2. Memeriksa jurnal, lalu klik posting"]
+    C13{"Validasi Kelengkapan Data<br/>& Koreksi Transaksi"}
+    UC13_Alt1["Posting gagal dan pesan ditampilkan"]
+    UC13_Alt2["Dilakukan dengan jejak audit (audit trail)"]
+    UC13_S3["<b>Respons Sistem:</b><br/>3. Memperbarui buku besar dan buku pembantu"]
+    UC13_A3["<b>Aktor (Accounting):</b><br/>3. Klik susun laporan keuangan"]
+    UC13_S4["<b>Respons Sistem:</b><br/>4. Menyajikan neraca, laba rugi, dan arus kas<br/><i>(Postcondition: Buku besar & buku pembantu terbarui;<br/>laporan neraca, laba rugi, dan arus kas dapat disusun)</i>"]
+
+    UC11_S3 --> UC13_A1
+    UC12_S4 --> UC13_A1
+    UC13_A1 --> UC13_S2
+    UC13_S2 --> UC13_A2
+    UC13_A2 --> C13
+    C13 -- "Alternative: Data Tidak Lengkap" --> UC13_Alt1
+    C13 -- "Alternative: Ada Koreksi Transaksi" --> UC13_Alt2
+    UC13_Alt2 --> UC13_S3
+    C13 -- "Typical: Data Lengkap" --> UC13_S3
+    UC13_S3 --> UC13_A3
+    UC13_A3 --> UC13_S4
+
+    %% ================= UC-14 =================
+    UC14_A1["<b>UC-14 | Aktor (Auditor Internal):</b><br/>1. Memilih jenis dokumen dan transaksi"]
+    UC14_S2["<b>Respons Sistem:</b><br/>2. Menampilkan dokumen, persetujuan,<br/>jurnal, dan riwayat perubahan"]
+    UC14_A2["<b>Aktor (Auditor Internal):</b><br/>2. Menelusuri nomor referensi dari<br/>FPBB sampai pembayaran"]
+    UC14_S3["<b>Respons Sistem:</b><br/>3. Menampilkan keterkaitan antar-dokumen"]
+    C14{"Apakah Auditor Mencoba<br/>Mengubah Data?"}
+    UC14_Alt["<b>Respons Sistem:</b><br/>Sistem menolak karena akses baca saja"]
+    End_All(("Selesai:<br/>Dokumen & Riwayat Ditampilkan<br/>Tanpa Perubahan Data"))
+
+    UC13_S4 --> UC14_A1
+    UC14_A1 --> UC14_S2
+    UC14_S2 --> UC14_A2
+    UC14_A2 --> UC14_S3
+    UC14_S3 --> C14
+    C14 -- "Alternative: Mencoba Mengubah Data" --> UC14_Alt
+    C14 -- "Typical: Hanya Meninjau" --> End_All
+
+    %% Penerapan Warna (Class Styling)
+    class UC01_A1,UC01_A2,UC02_A1,UC02_A2 prod
+    class UC03_A1,UC03_A2,UC08_A1,UC08_A2 gudang
+    class UC04_A1,UC04_A2,UC05_A1,UC05_A2,UC06_A1,UC06_A2,UC06_A3,UC06_A4 purch
+    class UC07_A1,UC07_A2,UC07_A3 mgr
+    class UC09_A1,UC09_A2 qc
+    class UC10_A1,UC10_A2,UC10_A3,UC11_A1,UC11_A2 ap
+    class UC12_A1,UC12_A2,UC12_A3 fin
+    class UC13_A1,UC13_A2,UC13_A3 acc
+    class UC14_A1,UC14_A2 aud
+    class UC01_S2,UC01_S3,UC02_Alt_Stat,UC02_S2,UC02_S3,UC03_S2,UC03_S3,UC04_S2,UC04_S3,UC04_S4,UC05_S2,UC05_S3,UC06_S2,UC06_S3,UC06_S4,UC06_S5,UC07_S2,UC07_S3,UC07_S4,UC08_S2,UC08_S3,UC09_S2,UC09_S3,UC10_S2,UC10_S3,UC10_S4,UC11_S2,UC11_S3,UC12_S2,UC12_S3,UC12_S4,UC13_S2,UC13_S3,UC13_S4,UC14_S2,UC14_S3 sys
+    class UC04_A3,Ext_Sup_Send ext
+    class UC01_Alt,UC02_Err,UC02_Ubah,UC03_Alt1,UC03_Alt2,UC04_Alt1,UC04_Alt2,UC05_Alt,UC06_Alt1,UC06_Alt2,UC06_Alt3,UC06_Alt4,UC07_Alt1,UC07_Alt2,UC08_Alt1,UC08_Alt2,UC09_Alt,UC10_Alt_Dup,UC10_Alt_Hold,UC11_Alt,UC12_Alt1,UC12_Alt2,UC12_Alt3,UC13_Alt1,UC13_Alt2,UC14_Alt alt

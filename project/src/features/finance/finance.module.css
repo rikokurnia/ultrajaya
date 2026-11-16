@@ -1,0 +1,178 @@
+/* Finance Module Styling */
+
+.heroHeader {
+  background: linear-gradient(110deg, #103e99 0%, #1675e8 62%, #48b8f2 100%);
+  border-radius: 14px;
+  padding: 24px 28px;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(7, 85, 201, 0.12);
+}
+
+.kpiCard {
+  background: #ffffff;
+  border: 1px solid #d6e7fa;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(7, 85, 201, 0.04);
+}
+
+.kpiIconWrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.kpiBlue {
+  background: #ebf4ff;
+  color: #0755c9;
+}
+
+.kpiRed {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.kpiAmber {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.kpiCalendar {
+  background: #f0f7ff;
+  color: #0284c7;
+}
+
+.flowDiagram {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  background: #f8fbff;
+  border: 1px solid #e2edfa;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+
+.flowNode {
+  flex: 1;
+  min-width: 130px;
+  background: #ffffff;
+  border: 1px solid #d6e7fa;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(7, 85, 201, 0.03);
+}
+
+.flowArrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7485a3;
+  font-size: 18px;
+  padding: 0 4px;
+}
+
+.allocationBar {
+  height: 22px;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  background: #e2edfa;
+  margin: 10px 0;
+}
+
+.segPaid {
+  background: #0755c9;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.3s ease;
+}
+
+.segEligible {
+  background: #48b8f2;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.3s ease;
+}
+
+.segDisputed {
+  background: #f59e0b;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.3s ease;
+}
+
+.discrepancyBox {
+  background: #fff8f6;
+  border: 1px solid #fed7d7;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.subViewTabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid #d6e7fa;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.subViewTab {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #52658a;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.subViewTab:hover {
+  color: #0755c9;
+  background: #f0f7ff;
+  text-decoration: none;
+}
+
+.subViewTabActive {
+  color: #0755c9;
+  background: #ebf4ff;
+  border-color: #b8daf9;
+  font-weight: 600;
+  text-decoration: none;
+}
