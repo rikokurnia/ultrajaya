@@ -1,3 +1,5 @@
+> **Current deployed architecture:** Five-role, database-independent frontend. Read [backend handoff](BACKEND_HANDOFF.md) and the final frontend handoff before historical SQLite instructions below. Supabase is owned by the backend team.
+
 > **Current visual revision (16 November 2026):** Read [foundation-design-revision.md](handoffs/foundation-design-revision.md) before the historical contract below. The three images in `../mynotes/layout-images/dashboard/` now define the shared foundation: Dashboard, Laporan, Pengaturan, and four blank cycle destinations. Preserve the current Ultrajaya name and logo. Existing domain code is retained for its assigned agents.
 
 # UltraOps project contract

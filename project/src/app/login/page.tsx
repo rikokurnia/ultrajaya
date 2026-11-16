@@ -45,7 +45,6 @@ export default async function LoginPage({
           ))}
         </div>
         <div className="branding-footer">
-          <span className="concept">Concept • Simulated Data</span>
           <span>
             <CalendarDays size={20} aria-hidden />
             {formatDate(new Date())}
@@ -59,7 +58,7 @@ export default async function LoginPage({
           <p className="login-subtitle">Sign in to your Ultrajaya workspace.</p>
           <LoginForm next={next} />
         </div>
-        <footer>Ultrajaya • Internal enterprise concept</footer>
+        <footer>Ultrajaya ERP</footer>
       </section>
     </main>
   );

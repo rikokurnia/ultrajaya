@@ -1,13 +1,12 @@
 # ultrajaya
 
-Next.js application: **`project/`**. Original analyst notes and visual references: `mynotes/`.
-
-Start with the [current foundation design revision](project/docs/handoffs/foundation-design-revision.md), [Agent 1 handoff](project/docs/handoffs/agent-1.md), [project contract](project/docs/PROJECT_CONTRACT.md) and [design system](project/docs/DESIGN_SYSTEM.md). These define the frozen routes, ownership, permission boundaries, shared IDs, persistence and integration rules for Agents 2–6.
+Ultrajaya ERP frontend lives in **project/**. Original design/workflow references are in **mynotes/**. The retired SQLite implementation is preserved in **archive/sqlite/** and excluded from deployment.
 
 ```bash
 cd project
 npm ci
-# Configure .env.local using .env.example before seeding.
-npm run seed
+# Configure SESSION_SECRET using .env.example.
 npm run dev
 ```
+
+[Application setup and role accounts](project/README.md) · [Backend handoff](project/docs/BACKEND_HANDOFF.md) · [Deployment handoff](project/docs/handoffs/final-frontend.md)

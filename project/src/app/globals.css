@@ -1616,3 +1616,162 @@ td strong,
 td p {
   overflow-wrap: anywhere;
 }
+/* Frontend preview status and explicit role/cycle/duty configuration. */
+.demo-banner {
+  padding: 9px 13px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #eaf3ff;
+  color: #31537e;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.demo-role-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.demo-role-switch select {
+  max-width: 190px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px;
+  background: white;
+  color: var(--navy);
+  min-height: 40px;
+}
+.demo-roles-panel {
+  margin-top: 40px;
+}
+.demo-roles-panel > h2 {
+  font-size: 20px;
+}
+.demo-roles-panel > p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 8px 0 18px;
+}
+.demo-roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.demo-role-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.demo-role-card.selected {
+  border-color: var(--primary);
+  background: #f0f6ff;
+}
+.demo-role-card h3 {
+  font-size: 15px;
+  letter-spacing: 0;
+}
+.demo-role-card p {
+  font-size: 12px;
+  color: var(--muted);
+  flex: 1;
+}
+.demo-role-card small {
+  font-size: 11px;
+  line-height: 1.6;
+}
+.demo-role-card button {
+  min-height: 40px;
+  padding: 8px 12px;
+  background: #e8f1ff;
+  color: var(--primary);
+  font-size: 12px;
+  border-radius: 7px;
+}
+.demo-notice {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.duty-fieldset {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.duty-fieldset legend {
+  font-weight: 600;
+  padding: 0 5px;
+}
+.duty-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 8px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.duty-option input {
+  margin-top: 2px;
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+}
+.cycle-restricted {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: auto;
+  padding-top: 15px;
+  min-height: 44px;
+}
+.demo-login-accounts {
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.demo-login-accounts summary {
+  min-height: 36px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--primary);
+}
+.demo-login-accounts p {
+  margin: 10px 0;
+}
+.demo-login-accounts button {
+  display: block;
+  width: 100%;
+  min-height: 38px;
+  text-align: left;
+  padding: 8px;
+  margin: 5px 0;
+  background: #edf5ff;
+  border-radius: 6px;
+  color: var(--navy);
+}
+@media (max-width: 700px) {
+  .demo-role-switch label {
+    display: none;
+  }
+  .demo-role-switch select {
+    max-width: 145px;
+    font-size: 11px;
+  }
+  .demo-banner {
+    font-size: 11px;
+    margin-bottom: 20px;
+  }
+  .demo-roles-grid {
+    grid-template-columns: 1fr;
+  }
+  .demo-roles-panel {
+    margin-top: 30px;
+  }
+}

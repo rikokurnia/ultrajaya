@@ -5,15 +5,9 @@ export type ReceivablesDateOption = "2026-11-16" | "2026-11-30" | "2026-10-31";
 
 export type TaskStatus = "Sedang berjalan" | "Perlu ditinjau" | "Belum dimulai";
 export type OrderStatus =
-  | "Menunggu verifikasi"
-  | "Perlu cek stok"
-  | "Siap dikirim"
-  | "Dikirim";
+  "Menunggu verifikasi" | "Perlu cek stok" | "Siap dikirim" | "Dikirim";
 export type InvoiceStatus =
-  | "Perlu pencocokan"
-  | "Menunggu pembayaran"
-  | "Lewat jatuh tempo"
-  | "Lunas";
+  "Perlu pencocokan" | "Menunggu pembayaran" | "Lewat jatuh tempo" | "Lunas";
 
 export interface TrendPoint {
   label: string;
@@ -63,6 +57,7 @@ export interface CustomerRecord {
 }
 
 export interface SalesOrderItem {
+  createdByUserId?: string;
   id: string;
   number: string;
   customerId: string;

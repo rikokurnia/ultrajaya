@@ -6,7 +6,7 @@ import "@fontsource/inter/700.css";
 import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "Ultrajaya", template: "%s | Ultrajaya" },
-  description: "Ultrajaya procurement, inventory and finance workspace",
+  description: "Ultrajaya ERP — Pendapatan, Pengeluaran, Produksi, dan Penggajian",
   robots: { index: false, follow: false },
 };
 export default function RootLayout({

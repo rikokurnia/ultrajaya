@@ -84,7 +84,7 @@ export function Showcase() {
           <KpiCard
             label="Sample invoice"
             value={<Currency minor={16000000000} />}
-            hint="Concept • Simulated Data"
+            hint="Ultrajaya ERP"
             icon={<FileText />}
           />
         </Card>
@@ -94,14 +94,14 @@ export function Showcase() {
             <DetailDrawer
               trigger={<Button variant="secondary">Open detail drawer</Button>}
               title="Example detail"
-              description="Concept • Simulated Data"
+              description="Ultrajaya ERP"
             >
               <p>Module details belong here.</p>
             </DetailDrawer>
             <ConfirmDialog
               trigger={<Button variant="danger">Open confirmation</Button>}
               title="Confirm example action?"
-              description="This demonstration only updates the text below."
+              description="Konfirmasi tindakan ini."
               onConfirm={() => setConfirmed(true)}
             />
           </div>

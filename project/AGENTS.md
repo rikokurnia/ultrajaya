@@ -11,3 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## UltraOps foundation
 
 Read docs/PROJECT_CONTRACT.md, docs/DESIGN_SYSTEM.md and docs/handoffs/agent-1.md before editing. Follow their route, permission, fixture and migration ownership boundaries. Application commands run in this directory (`project/`). Original references are in ../mynotes/layout-images/.
+
+## Current deployed architecture
+
+Read docs/BACKEND_HANDOFF.md and docs/handoffs/final-frontend.md first. The application is database-independent and uses five roles with cycle/duty assignments. The previous SQLite implementation is archived outside this application under ../archive/sqlite/ and excluded from deployment. Do not restore historical seed/migration commands or old roles into the active frontend.

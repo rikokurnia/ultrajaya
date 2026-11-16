@@ -179,6 +179,7 @@ export function PendapatanView({
     const number = `SO-0${nextNum}`;
     const newOrder: SalesOrderItem = {
       id: `so-0${nextNum}`,
+      createdByUserId: user.id,
       number,
       customerId: customer.id,
       customerName: customer.name,
@@ -195,6 +196,12 @@ export function PendapatanView({
   }
 
   function handleAdvanceOrder(orderId: string, nextStatus: OrderStatus) {
+    const target = orders.find((o) => o.id === orderId);
+    if (
+      target?.status === "Menunggu verifikasi" &&
+      target.createdByUserId === user.id
+    )
+      return;
     setOrders((prev) =>
       prev.map((order) =>
         order.id === orderId
@@ -442,9 +449,7 @@ export function PendapatanView({
                   id="order-status-filter"
                   value={orderStatusFilter}
                   onChange={(e) =>
-                    setOrderStatusFilter(
-                      e.target.value as "ALL" | OrderStatus,
-                    )
+                    setOrderStatusFilter(e.target.value as "ALL" | OrderStatus)
                   }
                 >
                   <option value="ALL">Semua status</option>
@@ -706,9 +711,7 @@ export function PendapatanView({
                 <div className={styles.headerControls}>
                   <label className={styles.searchBox}>
                     <Search aria-hidden />
-                    <span className="sr-only">
-                      Cari invoice atau pelanggan
-                    </span>
+                    <span className="sr-only">Cari invoice atau pelanggan</span>
                     <input
                       type="search"
                       value={invoiceSearch}
@@ -717,10 +720,7 @@ export function PendapatanView({
                     />
                   </label>
                   <div className={styles.selectControl}>
-                    <label
-                      htmlFor="invoice-status-filter"
-                      className="sr-only"
-                    >
+                    <label htmlFor="invoice-status-filter" className="sr-only">
                       Filter status invoice
                     </label>
                     <select
@@ -733,9 +733,7 @@ export function PendapatanView({
                       }
                     >
                       <option value="ALL">Semua status</option>
-                      <option value="Perlu pencocokan">
-                        Perlu pencocokan
-                      </option>
+                      <option value="Perlu pencocokan">Perlu pencocokan</option>
                       <option value="Menunggu pembayaran">
                         Menunggu pembayaran
                       </option>

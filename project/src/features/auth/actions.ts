@@ -1,13 +1,9 @@
 "use server";
 import { redirect } from "next/navigation";
-import {
-  authenticate,
-  createSession,
-  revokeSession,
-} from "@/server/auth-service";
 import { sessionCookie } from "@/lib/auth/session";
 import { safeDestination } from "@/lib/auth/redirect";
-import { loginSchema } from "@/shared/contracts/auth";
+import { loginSchema, roleSchema } from "@/shared/contracts/auth";
+import { DEMO_PASSWORD, DEMO_USERS, demoUser } from "@/lib/demo/users";
 export interface LoginState {
   error?: string;
   fieldErrors?: { email?: string[]; password?: string[] };
@@ -23,22 +19,26 @@ export async function signIn(
   });
   if (!parsed.success)
     return { fieldErrors: parsed.error.flatten().fieldErrors };
-  const user = authenticate(parsed.data);
-  if (!user)
-    return {
-      error:
-        "Email or password is incorrect, or access is unavailable. After repeated attempts, wait 15 minutes and try again.",
-    };
+  const user = DEMO_USERS.find((u) => u.email === parsed.data.email);
+  if (!user || parsed.data.password !== DEMO_PASSWORD)
+    return { error: "Email atau kata sandi tidak sesuai." };
   const session = await sessionCookie(parsed.data.remember);
-  revokeSession(session.token);
-  const created = createSession(user, parsed.data.remember);
-  session.token = created.token;
+  session.user = user;
+  session.expiresAt =
+    Date.now() + (parsed.data.remember ? 30 * 86400 : 8 * 3600) * 1000;
   await session.save();
   redirect(safeDestination(String(form.get("next") || ""), user));
 }
-export async function signOut() {
+/** Public role preview, deliberately available to every demo visitor; not a production impersonation feature. */
+export async function switchDemoRole(form: FormData) {
+  const role = roleSchema.parse(form.get("role"));
   const session = await sessionCookie();
-  revokeSession(session.token);
-  session.destroy();
+  session.user = demoUser(role);
+  session.expiresAt = Date.now() + 8 * 3600 * 1000;
+  await session.save();
+  redirect("/dashboard");
+}
+export async function signOut() {
+  (await sessionCookie()).destroy();
   redirect("/login");
 }

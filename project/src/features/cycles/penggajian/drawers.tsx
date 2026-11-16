@@ -81,11 +81,7 @@ export function TaskStatusPill({ status }: { status: TaskQueueStatus }) {
   return <span className={`${styles.pill} ${cls}`}>{status}</span>;
 }
 
-export function OnboardingStatusPill({
-  status,
-}: {
-  status: OnboardingStatus;
-}) {
+export function OnboardingStatusPill({ status }: { status: OnboardingStatus }) {
   const cls =
     status === "Selesai Onboarding"
       ? styles.pillSuccess
@@ -116,8 +112,7 @@ export function AttendanceStatusPill({
 }
 
 export function KpiStatusPill({ status }: { status: KpiReviewStatus }) {
-  const cls =
-    status === "Disahkan" ? styles.pillSuccess : styles.pillWarning;
+  const cls = status === "Disahkan" ? styles.pillSuccess : styles.pillWarning;
   return <span className={`${styles.pill} ${cls}`}>{status}</span>;
 }
 
@@ -175,8 +170,7 @@ export function CreateEmployeeDrawer({
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("Produksi UHT");
   const [roleTitle, setRoleTitle] = useState("Operator Proses UHT");
-  const [employmentType, setEmploymentType] =
-    useState<EmploymentType>("Tetap");
+  const [employmentType, setEmploymentType] = useState<EmploymentType>("Tetap");
   const [baseSalaryInput, setBaseSalaryInput] = useState("7000000");
   const [fixedAllowanceInput, setFixedAllowanceInput] = useState("1400000");
   const [bankName, setBankName] = useState("BCA");
@@ -456,13 +450,9 @@ export function EmployeeDetailDrawer({
   if (employee && employee.id !== prevEmpId) {
     setPrevEmpId(employee.id);
     setBankName(employee.bankName || "BCA");
-    setBankAccountNumber(
-      employee.bankAccountNumber || "0089410284",
-    );
+    setBankAccountNumber(employee.bankAccountNumber || "0089410284");
     setNpwpNumber(employee.npwpNumber || "81.204.519.2-421.000");
-    setBpjsKesehatanNumber(
-      employee.bpjsKesehatanNumber || "0002918472615",
-    );
+    setBpjsKesehatanNumber(employee.bpjsKesehatanNumber || "0002918472615");
     setBpjsKetenagakerjaanNumber(
       employee.bpjsKetenagakerjaanNumber || "26119482715",
     );
@@ -478,7 +468,7 @@ export function EmployeeDetailDrawer({
 
   function handleCompleteSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!employee || !canManage) return;
+    if (!employee || !canManage || !canSeeFullBank) return;
     if (
       !bankAccountNumber.trim() ||
       !npwpNumber.trim() ||
@@ -618,18 +608,18 @@ export function EmployeeDetailDrawer({
           </div>
           {!canSeeFullBank && (
             <p style={{ margin: 0, fontSize: 12.5, color: "#46597d" }}>
-              Nomor rekening penuh hanya ditampilkan untuk fungsi{" "}
-              <strong>HR, Treasury, dan Akuntansi</strong>.
+              Nomor rekening individual memerlukan tugas akses rekening yang
+              ditetapkan secara eksplisit.
             </p>
           )}
         </div>
 
-        {needsCompletion ? (
+        {needsCompletion && canSeeFullBank ? (
           <form onSubmit={handleCompleteSubmit} className={styles.drawerForm}>
             <div className={styles.drawerWarning} role="status">
-              <strong>Lengkapi Data Penggajian:</strong> Karyawan ini belum
-              siap diproses dalam penutupan gaji. Lengkapi data di bawah ini
-              untuk mengubah kesiapan menjadi <strong>Siap Diproses</strong>.
+              <strong>Lengkapi Data Penggajian:</strong> Karyawan ini belum siap
+              diproses dalam penutupan gaji. Lengkapi data di bawah ini untuk
+              mengubah kesiapan menjadi <strong>Siap Diproses</strong>.
             </div>
             {!canManage && (
               <div className={styles.drawerNotice} role="status">
@@ -802,7 +792,8 @@ export function AttendanceReviewDrawer({
             <div className={styles.metaItem}>
               <span>Hari Hadir / Izin</span>
               <strong>
-                {record.daysPresent} hari hadir · {record.leaveDays} hari izin/cuti
+                {record.daysPresent} hari hadir · {record.leaveDays} hari
+                izin/cuti
               </strong>
             </div>
             <div className={styles.metaItem}>
@@ -1074,15 +1065,16 @@ export function PayPeriodActionDrawer({
   if (!period) return null;
 
   const actionLabel = actionLabelForPayPeriodStage(period.stage);
-  const canExecute = canExecutePayPeriodAction(user, period.stage);
+  const canExecute = canExecutePayPeriodAction(
+    user,
+    period.stage,
+    period.createdByUserId,
+  );
   const canSeeAmounts = canViewPayrollAmounts(user);
   const canSeeGl = canReadGeneralLedger(user);
 
   const totalDebit = period.journalLines.reduce((acc, l) => acc + l.debit, 0);
-  const totalCredit = period.journalLines.reduce(
-    (acc, l) => acc + l.credit,
-    0,
-  );
+  const totalCredit = period.journalLines.reduce((acc, l) => acc + l.credit, 0);
 
   return (
     <DrawerShell
@@ -1119,7 +1111,8 @@ export function PayPeriodActionDrawer({
             <div className={styles.metaItem}>
               <span>Cakupan Karyawan</span>
               <strong>
-                {period.readyEmployeeCount} dari {period.employeeCount} siap diproses
+                {period.readyEmployeeCount} dari {period.employeeCount} siap
+                diproses
               </strong>
             </div>
           </div>
@@ -1166,7 +1159,9 @@ export function PayPeriodActionDrawer({
             <div className={styles.drawerSectionTop}>
               <h3>
                 Pratinjau Jurnal Buku Besar{" "}
-                {period.journalNumber ? `(${period.journalNumber})` : "(Draf Seimbang)"}
+                {period.journalNumber
+                  ? `(${period.journalNumber})`
+                  : "(Draf Seimbang)"}
               </h3>
               <span className={`${styles.pill} ${styles.pillInfo}`}>
                 Debit = Kredit: {formatRupiahFull(totalDebit)}

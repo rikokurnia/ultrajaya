@@ -1,0 +1,10 @@
+.git
+.gstack
+archive
+mynotes
+.env*
+project/.env*
+project/data
+project/node_modules
+project/.next
+project/docs/screenshots

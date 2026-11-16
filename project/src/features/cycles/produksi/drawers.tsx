@@ -156,10 +156,8 @@ export function ProductionOrderDetailDrawer({
 
   if (!order) return null;
 
-  const canReviewMaterials =
-    can(user, "requests:write") || can(user, "requests:verify");
-  const canReleaseOrder =
-    can(user, "requests:write") || can(user, "approvals:decide");
+  const canReviewMaterials = can(user, "production_orders:write");
+  const canReleaseOrder = can(user, "production_orders:write");
 
   const hasShortage = order.materials.some((m) => m.shortQty > 0);
 
@@ -266,9 +264,7 @@ export function ProductionOrderDetailDrawer({
                         {mat.name}
                       </div>
                     </td>
-                    <td>
-                      {formatQuantityWithUnit(mat.requiredQty, mat.unit)}
-                    </td>
+                    <td>{formatQuantityWithUnit(mat.requiredQty, mat.unit)}</td>
                     <td>
                       {formatQuantityWithUnit(mat.availableQty, mat.unit)}
                     </td>
@@ -278,7 +274,9 @@ export function ProductionOrderDetailDrawer({
                           {formatQuantityWithUnit(mat.shortQty, mat.unit)}
                         </span>
                       ) : (
-                        <span className={`${styles.pill} ${styles.pillSuccess}`}>
+                        <span
+                          className={`${styles.pill} ${styles.pillSuccess}`}
+                        >
                           0 {mat.unit}
                         </span>
                       )}
@@ -422,8 +420,8 @@ export function BatchDetailDrawer({
 
   if (!batch) return null;
 
-  const canRecordProduction = can(user, "requests:write");
-  const canManageQc = can(user, "inspections:write");
+  const canRecordProduction = can(user, "batches:write");
+  const canManageQc = can(user, "production_qc:write");
 
   const actionTitle =
     batch.nextAction === "CATAT_HASIL"
@@ -570,7 +568,9 @@ export function BatchDetailDrawer({
                         {step.timestampLabel} · {step.actorLabel}
                       </span>
                     </div>
-                    <p className={styles.timelineResult}>{step.resultSummary}</p>
+                    <p className={styles.timelineResult}>
+                      {step.resultSummary}
+                    </p>
                   </div>
                 </li>
               );
@@ -827,8 +827,7 @@ export function WarehouseBatchDrawer({
 
   if (!batch) return null;
 
-  const canConfirmStorage =
-    can(user, "receipts:write") || can(user, "dispatches:write");
+  const canConfirmStorage = can(user, "storage:confirm");
   const isReadyToConfirm =
     batch.qcReleaseState === "Dirilis QC" &&
     batch.storageState === "Siap disimpan";
@@ -983,8 +982,7 @@ export function HppBatchDrawer({
 
   if (!batch) return null;
 
-  const canReviewHpp =
-    can(user, "journals:post") || can(user, "reconciliation:approve");
+  const canReviewHpp = can(user, "production_costs:review");
   const isReviewable = batch.hppAuditStatus === "Perlu tinjauan HPP";
 
   const totalCost = computeBatchTotalCost(batch);

@@ -65,7 +65,11 @@ export function OrderStatusPill({ status }: { status: OrderStatus }) {
   return <span className={`${styles.pill} ${cls}`}>{status}</span>;
 }
 
-export function InvoiceStatusPill({ status }: { status: InvoiceRecord["status"] }) {
+export function InvoiceStatusPill({
+  status,
+}: {
+  status: InvoiceRecord["status"];
+}) {
   const cls =
     status === "Perlu pencocokan"
       ? styles.pillWarning
@@ -302,8 +306,9 @@ export function OrderDetailDrawer({
 }) {
   if (!order) return null;
 
-  const canApproveCredit = can(user, "sales_orders:approve");
-  const canCheckStock = can(user, "dispatches:write");
+  const canApproveCredit =
+    can(user, "sales_orders:approve") && order?.createdByUserId !== user.id;
+  const canCheckStock = can(user, "stock:verify");
   const canIssueDo = can(user, "dispatches:write");
 
   const nextAction: {
@@ -388,8 +393,8 @@ export function OrderDetailDrawer({
         {nextAction && !nextAction.allowed && (
           <div className={styles.drawerNotice} role="status">
             Tindakan <strong>{nextAction.label}</strong> diotorisasi untuk peran{" "}
-            <strong>{nextAction.requiredRole}</strong>. Akun Anda saat ini
-            hanya dapat meninjau rincian dokumen.
+            <strong>{nextAction.requiredRole}</strong>. Akun Anda saat ini hanya
+            dapat meninjau rincian dokumen.
           </div>
         )}
 

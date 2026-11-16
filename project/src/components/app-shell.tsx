@@ -16,6 +16,9 @@ import type { User } from "@/shared/contracts/auth";
 import { can } from "@/lib/auth/permissions";
 import { CYCLES } from "@/shared/cycles";
 import { Brand } from "./brand";
+import { ROLE_LABELS, ROLES } from "@/shared/contracts/auth";
+import { useDemo } from "@/lib/demo/provider";
+import { switchDemoRole } from "@/features/auth/actions";
 import { signOut } from "@/features/auth/actions";
 import styles from "./foundation.module.css";
 
@@ -69,13 +72,9 @@ export function AppShell({
   const [open, setOpen] = useState(false);
   const path = usePathname();
   const activeCycle = CYCLES.find((cycle) => path.startsWith(cycle.path));
-  const role =
-    user.role === "ADMIN"
-      ? "Admin"
-      : user.role === "AUDITOR"
-        ? "Auditor"
-        : user.role.charAt(0) +
-          user.role.slice(1).toLowerCase().replaceAll("_", " ");
+  const { user: currentUser } = useDemo();
+  user = currentUser;
+  const role = ROLE_LABELS[user.role];
   return (
     <div className={styles.shell}>
       <aside className={styles.sidebar}>
@@ -83,6 +82,21 @@ export function AppShell({
       </aside>
       <div className={styles.workspace}>
         <header className={styles.topbar}>
+          <form action={switchDemoRole} className="demo-role-switch">
+            <label htmlFor="demo-role">Peran</label>
+            <select
+              id="demo-role"
+              name="role"
+              value={user.role}
+              onChange={(e) => e.currentTarget.form?.requestSubmit()}
+            >
+              {ROLES.map((r) => (
+                <option key={r} value={r}>
+                  {ROLE_LABELS[r]}
+                </option>
+              ))}
+            </select>
+          </form>
           <Dialog.Root open={open} onOpenChange={setOpen}>
             <Dialog.Trigger
               className={`icon-button ${styles.mobileMenu}`}

@@ -1,38 +1,24 @@
 "use client";
 import { useState } from "react";
 import { UserRound, UsersRound, Layers, Search, Plus } from "lucide-react";
-import type { User, Role } from "@/shared/contracts/auth";
-import { can } from "@/lib/auth/permissions";
+import type { User } from "@/shared/contracts/auth";
+import { canViewCycle } from "@/lib/auth/permissions";
+import { ROLE_LABELS } from "@/shared/contracts/auth";
+import { CYCLES } from "@/shared/cycles";
+import { useDemo } from "@/lib/demo/provider";
 import { DetailDrawer } from "@/components/ui/overlays";
 import { AccessForm, NewUserForm } from "./forms";
 import styles from "@/components/foundation.module.css";
-const roleLabel = (role: Role) =>
-  role === "ADMIN"
-    ? "Admin"
-    : role === "FAM"
-      ? "Finance Manager"
-      : role === "QC"
-        ? "QC"
-        : role === "AP"
-          ? "AP"
-          : role === "AR"
-            ? "AR"
-            : role.charAt(0) + role.slice(1).toLowerCase().replaceAll("_", " ");
 function cycleAccess(user: User) {
-  if (user.role === "ADMIN") return "Semua siklus";
-  const cycles = [];
-  if (can(user, "revenue:read")) cycles.push("Pendapatan");
-  if (can(user, "requests:read") || can(user, "invoices:read"))
-    cycles.push("Pengeluaran");
-  if (
-    user.role === "PRODUCTION" ||
-    user.role === "QC" ||
-    user.role === "WAREHOUSE"
-  )
-    cycles.push("Produksi");
-  return cycles.join(", ") || "—";
+  return (
+    CYCLES.filter((c) => canViewCycle(user, c.key))
+      .map((c) => c.title)
+      .join(", ") || "Belum ditetapkan"
+  );
 }
-export function SettingsView({ actor, users }: { actor: User; users: User[] }) {
+export function SettingsView({ actor: serverActor }: { actor: User }) {
+  const { user: actor, users } = useDemo();
+  void serverActor;
   const [tab, setTab] = useState("users");
   const [search, setSearch] = useState("");
   const filtered = users.filter((user) =>
@@ -113,7 +99,7 @@ export function SettingsView({ actor, users }: { actor: User; users: User[] }) {
                           <strong>{user.name}</strong>
                           <p>{user.email}</p>
                         </td>
-                        <td>{roleLabel(user.role)}</td>
+                        <td>{ROLE_LABELS[user.role]}</td>
                         <td>
                           <span className={styles.pill}>
                             {cycleAccess(user)}
@@ -148,7 +134,7 @@ export function SettingsView({ actor, users }: { actor: User; users: User[] }) {
             <div className={styles.settingsProfile}>
               <strong>{actor.name}</strong>
               <p>{actor.email}</p>
-              <p>{roleLabel(actor.role)}</p>
+              <p>{ROLE_LABELS[actor.role]}</p>
             </div>
           ) : (
             <div className={styles.settingsTabBlank} />

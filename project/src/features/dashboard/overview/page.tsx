@@ -1,3 +1,7 @@
+"use client";
+import { useDemo } from "@/lib/demo/provider";
+import { canViewCycle } from "@/lib/auth/permissions";
+import { DemoRolesPanel } from "@/features/settings/demo-roles-panel";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CYCLES } from "@/shared/cycles";
@@ -39,28 +43,38 @@ function CycleIcon({ index }: { index: number }) {
   );
 }
 export function DashboardPage() {
+  const { user } = useDemo();
   return (
-    <section className={styles.dashboard}>
-      <h1 className={styles.pageTitle}>Dashboard Operasional</h1>
-      <div className={styles.cycleGrid}>
-        {CYCLES.map((cycle, index) => {
-          return (
-            <article className={styles.cycleCard} key={cycle.key}>
-              <span className={styles.cycleIcon}>
-                <CycleIcon index={index} />
-              </span>
-              <div className={styles.cycleBody}>
-                <h2>{cycle.title}</h2>
-                <p>{cycle.description}</p>
-                <Link className={styles.cycleLink} href={cycle.path}>
-                  Buka siklus <ArrowRight aria-hidden />
-                  <span className="sr-only">{cycle.title}</span>
-                </Link>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </section>
+    <>
+      <section className={styles.dashboard}>
+        <h1 className={styles.pageTitle}>Dashboard Operasional</h1>
+        <div className={styles.cycleGrid}>
+          {CYCLES.map((cycle, index) => {
+            return (
+              <article className={styles.cycleCard} key={cycle.key}>
+                <span className={styles.cycleIcon}>
+                  <CycleIcon index={index} />
+                </span>
+                <div className={styles.cycleBody}>
+                  <h2>{cycle.title}</h2>
+                  <p>{cycle.description}</p>
+                  {canViewCycle(user, cycle.key) ? (
+                    <Link className={styles.cycleLink} href={cycle.path}>
+                      Buka siklus <ArrowRight aria-hidden />
+                      <span className="sr-only">{cycle.title}</span>
+                    </Link>
+                  ) : (
+                    <span className="cycle-restricted">
+                      Akses belum ditetapkan
+                    </span>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+      <DemoRolesPanel />
+    </>
   );
 }

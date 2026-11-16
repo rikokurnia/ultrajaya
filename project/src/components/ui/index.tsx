@@ -93,7 +93,7 @@ export function PageHeader({
         <p>{description}</p>
       </div>
       <div className="page-header-meta">
-        {concept && <span className="concept">Concept • Simulated Data</span>}
+        {concept && <span className="concept">Ultrajaya ERP</span>}
         <span className="header-date">
           <CalendarDays size={20} aria-hidden />
           {formatDate(new Date())}

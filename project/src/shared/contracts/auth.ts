@@ -1,37 +1,43 @@
 import { z } from "zod";
+import type { CycleKey } from "@/shared/cycles";
 export const ROLES = [
-  "ADMIN",
-  "PRODUCTION",
-  "WAREHOUSE",
-  "PURCHASING",
-  "APPROVER",
-  "QC",
-  "AP",
-  "TREASURY",
-  "ACCOUNTING",
-  "AUDITOR",
-  "SALES_ADMIN",
-  "CREDIT_MANAGER",
-  "AR",
-  "FAM",
+  "SYSTEM_ADMIN",
+  "OPERATIONS_STAFF",
+  "FINANCE_STAFF",
+  "HR_PAYROLL_STAFF",
+  "MANAGER_APPROVER",
 ] as const;
+export const ROLE_LABELS: Record<Role, string> = {
+  SYSTEM_ADMIN: "System Admin",
+  OPERATIONS_STAFF: "Operations Staff",
+  FINANCE_STAFF: "Finance Staff",
+  HR_PAYROLL_STAFF: "HR & Payroll Staff",
+  MANAGER_APPROVER: "Manager / Approver",
+};
 export const roleSchema = z.enum(ROLES);
 export type Role = z.infer<typeof roleSchema>;
+export interface CycleAssignment {
+  cycle: CycleKey;
+  duties: string[];
+}
 export interface User {
   id: string;
   name: string;
   email: string;
   role: Role;
   active: boolean;
+  assignments: CycleAssignment[];
   createdAt: string;
   updatedAt: string;
 }
-export type Actor = Pick<User, "id" | "role">;
+export type Actor = Pick<User, "id" | "role" | "assignments">;
 export const loginSchema = z.object({
   email: z
-    .email("Enter a valid work email.")
-    .transform((v) => v.trim().toLowerCase()),
-  password: z.string().min(1, "Enter your password.").max(256),
+    .string()
+    .trim()
+    .email("Masukkan email yang valid.")
+    .transform((v) => v.toLowerCase()),
+  password: z.string().min(1, "Masukkan kata sandi.").max(256),
   remember: z.boolean().default(false),
 });
 export const userSchema = z.object({
@@ -41,5 +47,4 @@ export const userSchema = z.object({
     .max(254)
     .transform((v) => v.toLowerCase()),
   role: roleSchema,
-  password: z.string().min(12, "Use at least 12 characters.").max(256),
 });

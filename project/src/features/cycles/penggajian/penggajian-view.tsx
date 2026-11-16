@@ -350,7 +350,14 @@ export function PenggajianView({
   function handleAdvancePeriod(periodId: string) {
     setPayPeriods((prev) =>
       prev.map((p) =>
-        p.id === periodId ? advancePayPeriodRecord(p, user.name) : p,
+        p.id === periodId &&
+        canExecutePayPeriodAction(user, p.stage, p.createdByUserId)
+          ? {
+              ...advancePayPeriodRecord(p, user.name),
+              createdByUserId:
+                p.stage === "Perlu Perhitungan" ? user.id : p.createdByUserId,
+            }
+          : p,
       ),
     );
   }
@@ -394,7 +401,7 @@ export function PenggajianView({
   });
 
   const selectedKpiEmployee = selectedKpi
-    ? employees.find((e) => e.id === selectedKpi.employeeId) ?? null
+    ? (employees.find((e) => e.id === selectedKpi.employeeId) ?? null)
     : null;
 
   const detailTotalDebit = activeDetailPeriod.journalLines.reduce(
@@ -452,7 +459,10 @@ export function PenggajianView({
           <>
             <div className={styles.filterBar}>
               <div className={styles.filterBarRight}>
-                <label htmlFor="penggajian-period" className={styles.filterLabel}>
+                <label
+                  htmlFor="penggajian-period"
+                  className={styles.filterLabel}
+                >
                   Periode Gaji
                 </label>
                 <div className={styles.selectControl}>
@@ -547,8 +557,12 @@ export function PenggajianView({
                   {SUMMARY_FOLLOW_UPS.map((item) => (
                     <li className={styles.followUpItem} key={item.id}>
                       <div className={styles.followUpMain}>
-                        <span className={styles.followUpText}>{item.label}</span>
-                        <span className={styles.followUpSub}>{item.detail}</span>
+                        <span className={styles.followUpText}>
+                          {item.label}
+                        </span>
+                        <span className={styles.followUpSub}>
+                          {item.detail}
+                        </span>
                       </div>
                       <button
                         type="button"
@@ -588,7 +602,9 @@ export function PenggajianView({
                       <tr key={row.id}>
                         <td>
                           <div style={{ fontWeight: 600 }}>{row.task}</div>
-                          <span className={styles.cellNote}>{row.ownerRole}</span>
+                          <span className={styles.cellNote}>
+                            {row.ownerRole}
+                          </span>
                         </td>
                         <td className={styles.tabular}>
                           <button
@@ -647,7 +663,8 @@ export function PenggajianView({
                   value={readinessFilter}
                   onChange={(e) =>
                     setReadinessFilter(
-                      e.target.value as "ALL" | EmployeeRecord["readinessStatus"],
+                      e.target.value as
+                        "ALL" | EmployeeRecord["readinessStatus"],
                     )
                   }
                 >
@@ -733,7 +750,9 @@ export function PenggajianView({
                               />
                             </td>
                             <td>
-                              <ReadinessStatusPill status={emp.readinessStatus} />
+                              <ReadinessStatusPill
+                                status={emp.readinessStatus}
+                              />
                             </td>
                             <td>
                               {showCompleteAction ? (
@@ -1084,8 +1103,9 @@ export function PenggajianView({
                 <div className={styles.cardHeaderStack}>
                   <h2 className={styles.cardTitle}>Daftar Periode Gaji</h2>
                   <p className={styles.cardSubtitle}>
-                    Klik nama periode untuk membuka rincian perhitungan, linimasa
-                    persetujuan hingga pencairan, dan posting jurnal Buku Besar.
+                    Klik nama periode untuk membuka rincian perhitungan,
+                    linimasa persetujuan hingga pencairan, dan posting jurnal
+                    Buku Besar.
                   </p>
                 </div>
               </div>
@@ -1113,7 +1133,11 @@ export function PenggajianView({
                       );
                       const canAct =
                         actionLabel !== null &&
-                        canExecutePayPeriodAction(user, period.stage);
+                        canExecutePayPeriodAction(
+                          user,
+                          period.stage,
+                          period.createdByUserId,
+                        );
                       const isSelected = period.id === activeDetailPeriod.id;
 
                       return (
@@ -1317,8 +1341,10 @@ export function PenggajianView({
                   </div>
                 ) : (
                   <div className={styles.drawerNotice} role="status">
-                    Rincian nominal <strong>Gaji Bruto → Potongan → Gaji Bersih</strong>{" "}
-                    dibatasi untuk peran <strong>HR, Keuangan, Akuntansi, dan Auditor</strong>.
+                    Rincian nominal{" "}
+                    <strong>Gaji Bruto → Potongan → Gaji Bersih</strong>{" "}
+                    dibatasi untuk peran{" "}
+                    <strong>HR, Keuangan, Akuntansi, dan Auditor</strong>.
                   </div>
                 )}
 
@@ -1326,7 +1352,9 @@ export function PenggajianView({
                 <div className={styles.statusTrioGrid}>
                   <div className={styles.statusCard}>
                     <div className={styles.statusCardTop}>
-                      <span className={styles.statusCardLabel}>Persetujuan</span>
+                      <span className={styles.statusCardLabel}>
+                        Persetujuan
+                      </span>
                       <SubStageStatusPill
                         status={activeDetailPeriod.approvalStatus}
                       />

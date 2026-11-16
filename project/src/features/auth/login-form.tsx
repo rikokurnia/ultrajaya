@@ -1,6 +1,8 @@
 "use client";
 import { useActionState, useState, useEffect } from "react";
 import { Eye, EyeOff, ArrowRight, LockKeyhole, LifeBuoy } from "lucide-react";
+import { DEMO_USERS, DEMO_PASSWORD } from "@/lib/demo/users";
+import { ROLE_LABELS } from "@/shared/contracts/auth";
 import { signIn } from "./actions";
 import { Button, Input, Field } from "@/components/ui";
 import { DetailDrawer } from "@/components/ui/overlays";
@@ -114,6 +116,24 @@ export function LoginForm({ next }: { next?: string }) {
           )}
         </Button>
       </form>
+      <details className="demo-login-accounts" open>
+        <summary>Pilih akun akses</summary>
+        <p>
+          Kata sandi: <code>{DEMO_PASSWORD}</code>
+        </p>
+        {DEMO_USERS.map((u) => (
+          <button
+            key={u.id}
+            type="button"
+            onClick={() => {
+              setEmail(u.email);
+              setPassword(DEMO_PASSWORD);
+            }}
+          >
+            {ROLE_LABELS[u.role]} · {u.email}
+          </button>
+        ))}
+      </details>
       <div className="login-help">
         <span>
           Need help? Contact{" "}

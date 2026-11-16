@@ -1,11 +1,8 @@
-import type { Actor, Role } from "@/shared/contracts/auth";
+import type { Actor } from "@/shared/contracts/auth";
 import { can } from "@/lib/auth/permissions";
 
 export type PenggajianTab =
-  | "ringkasan"
-  | "karyawan"
-  | "absensi-kinerja"
-  | "penggajian";
+  "ringkasan" | "karyawan" | "absensi-kinerja" | "penggajian";
 
 export type AbsensiKinerjaSubView = "absensi" | "kinerja";
 
@@ -19,18 +16,14 @@ export type TaskQueueStatus =
   | "Selesai";
 
 export type OnboardingStatus =
-  | "Selesai Onboarding"
-  | "Verifikasi Dokumen"
-  | "Orientasi Baru";
+  "Selesai Onboarding" | "Verifikasi Dokumen" | "Orientasi Baru";
 
 export type ReadinessStatus = "Siap Diproses" | "Data Belum Lengkap";
 
 export type EmploymentType = "Tetap" | "Kontrak" | "Masa Percobaan";
 
 export type AttendanceCorrectionStatus =
-  | "Perlu Koreksi"
-  | "Menunggu Verifikasi"
-  | "Terverifikasi";
+  "Perlu Koreksi" | "Menunggu Verifikasi" | "Terverifikasi";
 
 export type KpiReviewStatus = "Perlu Ditinjau" | "Disahkan";
 
@@ -87,11 +80,7 @@ export const PENGGAJIAN_TABS: readonly PenggajianTabMeta[] = [
 ];
 
 export function normalizePenggajianTab(raw?: string): PenggajianTab {
-  if (
-    raw === "karyawan" ||
-    raw === "absensi-kinerja" ||
-    raw === "penggajian"
-  ) {
+  if (raw === "karyawan" || raw === "absensi-kinerja" || raw === "penggajian") {
     return raw;
   }
   if (raw === "absensi" || raw === "kinerja") {
@@ -145,167 +134,54 @@ export function formatRupiahCompact(amount: number): string {
   return formatRupiahFull(amount);
 }
 
-/**
- * Access-control helpers reusing existing Role and Permission grants.
- * - ADMIN and FAM have full cycle operational visibility in the Ultrajaya ERP workspace.
- * - ACCOUNTING, TREASURY, AP, APPROVER, and AUDITOR have role-scoped payroll capabilities.
- * - Non-finance operational roles (QC, WAREHOUSE, PRODUCTION, PURCHASING, SALES_ADMIN)
- *   cannot view sensitive payroll totals, individual compensation, or bank account numbers.
- */
-const PAYROLL_AMOUNT_ROLES: readonly Role[] = [
-  "ADMIN",
-  "FAM",
-  "ACCOUNTING",
-  "TREASURY",
-  "AP",
-  "APPROVER",
-  "AUDITOR",
-];
-
-const COMPENSATION_ROLES: readonly Role[] = [
-  "ADMIN",
-  "FAM",
-  "ACCOUNTING",
-  "AP",
-  "APPROVER",
-  "AUDITOR",
-];
-
-const FULL_BANK_ROLES: readonly Role[] = [
-  "ADMIN",
-  "FAM",
-  "TREASURY",
-  "ACCOUNTING",
-  "AP",
-];
-
-export function canViewPayrollAmounts(actor: Actor | null | undefined): boolean {
-  if (!actor) return false;
-  return (
-    PAYROLL_AMOUNT_ROLES.includes(actor.role) ||
-    can(actor, "payables:read") ||
-    can(actor, "payments:read") ||
-    can(actor, "journals:read")
-  );
-}
-
-export function canViewIndividualCompensation(
+/** Every payroll capability requires an explicit cycle/duty assignment. */
+export const canViewPayrollAmounts = (actor: Actor | null | undefined) =>
+  can(actor, "payroll:totals");
+export const canViewIndividualCompensation = (
   actor: Actor | null | undefined,
-): boolean {
-  if (!actor) return false;
-  return COMPENSATION_ROLES.includes(actor.role);
-}
-
-export function canViewFullBankDetails(
-  actor: Actor | null | undefined,
-): boolean {
-  if (!actor) return false;
-  return FULL_BANK_ROLES.includes(actor.role);
-}
-
+) => can(actor, "salary:read");
+export const canViewFullBankDetails = (actor: Actor | null | undefined) =>
+  can(actor, "bank:read");
 export function formatBankAccountForActor(
   actor: Actor | null | undefined,
   bankName: string,
   accountNumber: string,
 ): string {
-  if (!accountNumber.trim()) {
-    return "Belum terdaftar";
-  }
-  if (canViewFullBankDetails(actor)) {
-    return `${bankName} · ${accountNumber}`;
-  }
-  if (actor && (actor.role === "AUDITOR" || actor.role === "APPROVER")) {
-    const tail = accountNumber.slice(-4);
-    return `${bankName} · •••• ${tail}`;
-  }
-  return "Terbatas (Hanya HR & Treasury)";
+  if (!accountNumber.trim()) return "Belum terdaftar";
+  return canViewFullBankDetails(actor)
+    ? `${bankName} · ${accountNumber}`
+    : "Terbatas (izin rekening diperlukan)";
 }
-
-export function canManageEmployees(actor: Actor | null | undefined): boolean {
-  if (!actor || actor.role === "AUDITOR") return false;
-  return (
-    actor.role === "ADMIN" ||
-    actor.role === "FAM" ||
-    actor.role === "AP" ||
-    actor.role === "ACCOUNTING"
-  );
-}
-
-export function canReviewAttendance(actor: Actor | null | undefined): boolean {
-  if (!actor || actor.role === "AUDITOR") return false;
-  return (
-    actor.role === "ADMIN" ||
-    actor.role === "FAM" ||
-    actor.role === "APPROVER" ||
-    actor.role === "PRODUCTION" ||
-    actor.role === "AP"
-  );
-}
-
-export function canReviewKpi(actor: Actor | null | undefined): boolean {
-  if (!actor || actor.role === "AUDITOR") return false;
-  return (
-    actor.role === "ADMIN" ||
-    actor.role === "FAM" ||
-    actor.role === "APPROVER" ||
-    actor.role === "PRODUCTION"
-  );
-}
-
+export const canManageEmployees = (actor: Actor | null | undefined) =>
+  can(actor, "employees:write");
+export const canReviewAttendance = (actor: Actor | null | undefined) =>
+  can(actor, "attendance:write");
+export const canReviewKpi = (actor: Actor | null | undefined) =>
+  can(actor, "kpi:write");
 export function canExecutePayPeriodAction(
   actor: Actor | null | undefined,
   stage: PayPeriodStage,
+  creatorId?: string,
 ): boolean {
-  if (!actor || actor.role === "AUDITOR" || stage === "Selesai") return false;
+  if (!actor || stage === "Selesai") return false;
   switch (stage) {
     case "Perlu Perhitungan":
-      return (
-        actor.role === "ADMIN" ||
-        actor.role === "FAM" ||
-        actor.role === "ACCOUNTING" ||
-        actor.role === "AP"
-      );
+      return can(actor, "payroll:calculate");
     case "Menunggu Tinjauan":
-      return (
-        actor.role === "ADMIN" ||
-        actor.role === "FAM" ||
-        actor.role === "APPROVER" ||
-        actor.role === "ACCOUNTING"
-      );
+      return can(actor, "payroll:review");
     case "Menunggu Persetujuan":
       return (
-        actor.role === "ADMIN" ||
-        actor.role === "FAM" ||
-        actor.role === "APPROVER" ||
-        can(actor, "approvals:decide")
+        can(actor, "payroll:approve") &&
+        actor.id !== (creatorId || "demo_hr_payroll_staff")
       );
     case "Menunggu Pencairan":
-      return (
-        actor.role === "ADMIN" ||
-        actor.role === "FAM" ||
-        actor.role === "TREASURY" ||
-        can(actor, "payments:write")
-      );
+      return can(actor, "payroll:disburse");
     case "Menunggu Posting Jurnal":
-      return (
-        actor.role === "ADMIN" ||
-        actor.role === "FAM" ||
-        actor.role === "ACCOUNTING" ||
-        can(actor, "journals:post")
-      );
+      return can(actor, "journals:post");
   }
 }
-
-export function canReadGeneralLedger(actor: Actor | null | undefined): boolean {
-  if (!actor) return false;
-  return (
-    actor.role === "ADMIN" ||
-    actor.role === "FAM" ||
-    actor.role === "ACCOUNTING" ||
-    actor.role === "AUDITOR" ||
-    can(actor, "journals:read")
-  );
-}
+export const canReadGeneralLedger = (actor: Actor | null | undefined) =>
+  can(actor, "journals:read");
 
 export function actionLabelForPayPeriodStage(
   stage: PayPeriodStage,
@@ -404,6 +280,7 @@ export interface JournalPreviewLine {
 }
 
 export interface PayPeriodRecord {
+  createdByUserId?: string;
   id: string;
   code: string;
   periodKey: PayrollPeriodKey;
@@ -838,7 +715,8 @@ export const INITIAL_ATTENDANCE_RECORDS: readonly AttendanceRecord[] = [
     overtimeHours: 9,
     spklReference: "SPKL-2611-027",
     correctionStatus: "Terverifikasi",
-    anomalyNote: "Rekap presensi dan jam lembur pengiriman regional telah valid.",
+    anomalyNote:
+      "Rekap presensi dan jam lembur pengiriman regional telah valid.",
   },
   // Oktober 2026
   {
@@ -856,7 +734,8 @@ export const INITIAL_ATTENDANCE_RECORDS: readonly AttendanceRecord[] = [
     overtimeHours: 11,
     spklReference: "SPKL-2610-012",
     correctionStatus: "Terverifikasi",
-    anomalyNote: "Seluruh presensi dan lembur Oktober 2026 telah terverifikasi.",
+    anomalyNote:
+      "Seluruh presensi dan lembur Oktober 2026 telah terverifikasi.",
   },
   {
     id: "abs-2610-002",
@@ -943,7 +822,8 @@ export const INITIAL_ATTENDANCE_RECORDS: readonly AttendanceRecord[] = [
     overtimeHours: 12,
     spklReference: "SPKL-2612-002",
     correctionStatus: "Menunggu Verifikasi",
-    anomalyNote: "Rekap awal jam kerja dan lembur Desember menunggu verifikasi.",
+    anomalyNote:
+      "Rekap awal jam kerja dan lembur Desember menunggu verifikasi.",
   },
 ];
 
@@ -1958,8 +1838,7 @@ export function advancePayPeriodRecord(
       };
     case "Menunggu Posting Jurnal": {
       const compactMonth = period.periodKey.replace("20", "").replace("-", "");
-      const journalNum =
-        period.journalNumber ?? `JRN-${compactMonth}-0051`;
+      const journalNum = period.journalNumber ?? `JRN-${compactMonth}-0051`;
       return {
         ...period,
         stage: "Selesai",

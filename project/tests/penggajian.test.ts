@@ -1,3 +1,4 @@
+import { demoUser } from "../src/lib/demo/users";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -50,49 +51,38 @@ test("all pay periods have balanced Gross - Deductions = Net and balanced GL jou
   }
 });
 
-test("access rules restrict payroll amounts, compensation, and bank account details by role", () => {
-  const warehouse = { id: "u-wh", role: "WAREHOUSE" as const };
-  const treasury = { id: "u-tr", role: "TREASURY" as const };
-  const accounting = { id: "u-ac", role: "ACCOUNTING" as const };
-  const auditor = { id: "u-au", role: "AUDITOR" as const };
-
-  assert.equal(canViewPayrollAmounts(warehouse), false);
-  assert.equal(canViewIndividualCompensation(warehouse), false);
-  assert.equal(canViewFullBankDetails(warehouse), false);
+test("payroll totals, individual compensation and bank details require explicit duties", () => {
+  const operations = demoUser("OPERATIONS_STAFF");
+  const finance = demoUser("FINANCE_STAFF");
+  const manager = demoUser("MANAGER_APPROVER");
+  assert.equal(canViewPayrollAmounts(operations), false);
+  assert.equal(canViewIndividualCompensation(finance), false);
+  assert.equal(canViewFullBankDetails(finance), false);
   assert.equal(
-    formatBankAccountForActor(warehouse, "BCA", "0084921840"),
-    "Terbatas (Hanya HR & Treasury)",
+    formatBankAccountForActor(finance, "BCA", "0084921840"),
+    "Terbatas (izin rekening diperlukan)",
   );
-
-  assert.equal(canViewPayrollAmounts(treasury), true);
-  assert.equal(canViewFullBankDetails(treasury), true);
+  assert.equal(canViewPayrollAmounts(finance), true);
+  finance.assignments
+    .find((a) => a.cycle === "penggajian")!
+    .duties.push("salary:read", "bank:read");
+  assert.equal(canViewIndividualCompensation(finance), true);
   assert.equal(
-    formatBankAccountForActor(treasury, "BCA", "0084921840"),
+    formatBankAccountForActor(finance, "BCA", "0084921840"),
     "BCA · 0084921840",
   );
-
-  assert.equal(canViewPayrollAmounts(auditor), true);
   assert.equal(
-    formatBankAccountForActor(auditor, "BCA", "0084921840"),
-    "BCA · •••• 1840",
-  );
-
-  // Stage actions respect separation of duties
-  assert.equal(
-    canExecutePayPeriodAction(auditor, "Menunggu Persetujuan"),
-    false,
-  );
-  assert.equal(
-    canExecutePayPeriodAction(treasury, "Menunggu Pencairan"),
+    canExecutePayPeriodAction(manager, "Menunggu Persetujuan"),
     true,
   );
   assert.equal(
-    canExecutePayPeriodAction(treasury, "Menunggu Posting Jurnal"),
+    canExecutePayPeriodAction(manager, "Menunggu Persetujuan", manager.id),
     false,
   );
+  assert.equal(canExecutePayPeriodAction(finance, "Menunggu Pencairan"), true);
   assert.equal(
-    canExecutePayPeriodAction(accounting, "Menunggu Posting Jurnal"),
-    true,
+    canExecutePayPeriodAction(operations, "Menunggu Pencairan"),
+    false,
   );
 });
 

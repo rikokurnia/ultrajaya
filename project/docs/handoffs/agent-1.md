@@ -1,3 +1,5 @@
+> **Current deployed architecture:** Five-role, database-independent frontend. Read [backend handoff](../BACKEND_HANDOFF.md) and the final frontend handoff before historical SQLite instructions below. Supabase is owned by the backend team.
+
 > **Latest foundation design:** Read [foundation-design-revision.md](foundation-design-revision.md) first. It supersedes the earlier shell layout and dashboard presentation described below.
 
 # Agent 1 handoff — UltraOps foundation
